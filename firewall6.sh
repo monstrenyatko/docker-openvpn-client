@@ -31,6 +31,11 @@ ip6tables -A OUTPUT -p udp -m udp --dport 53 -j ACCEPT
 ip6tables -A OUTPUT -p tcp -m owner --gid-owner openvpn -j ACCEPT
 ip6tables -A OUTPUT -p udp -m owner --gid-owner openvpn -j ACCEPT
 
+ip6tables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+ip6tables -A FORWARD -i lo -j ACCEPT
+ip6tables -A FORWARD -d ${docker_network} -j ACCEPT
+ip6tables -A FORWARD -s ${docker_network} -j ACCEPT
+
 if [ -n "$NET6_LOCAL" ]; then
   ip6tables -A INPUT -i eth0 -s $NET6_LOCAL -j ACCEPT
   ip6tables -A OUTPUT -o eth0 -d $NET6_LOCAL -j ACCEPT

@@ -31,6 +31,13 @@ iptables -A OUTPUT -p udp -m udp --dport 53 -j ACCEPT
 iptables -A OUTPUT -p tcp -m owner --gid-owner openvpn -j ACCEPT
 iptables -A OUTPUT -p udp -m owner --gid-owner openvpn -j ACCEPT
 
+iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A FORWARD -i lo -j ACCEPT
+iptables -A FORWARD -d ${docker_network} -j ACCEPT
+iptables -A FORWARD -s ${docker_network} -j ACCEPT
+iptables -t nat -A POSTROUTING -o tap+ -j MASQUERADE
+iptables -t nat -A POSTROUTING -o tun+ -j MASQUERADE
+
 if [ -n "$NET_LOCAL" ]; then
   iptables -A INPUT -i eth0 -s $NET_LOCAL -j ACCEPT
   iptables -A OUTPUT -o eth0 -d $NET_LOCAL -j ACCEPT
