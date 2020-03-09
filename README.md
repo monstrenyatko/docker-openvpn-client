@@ -1,6 +1,8 @@
 OpenVPN client Docker image
 ===========================
 
+[![Build Status](https://travis-ci.org/monstrenyatko/docker-openvpn-client.svg?branch=master)](https://travis-ci.org/monstrenyatko/docker-openvpn-client)
+
 About
 =====
 
@@ -8,7 +10,7 @@ About
 
 Upstream Links
 --------------
-* **TODO:** Docker Registry @[monstrenyatko/openvpn-client](https://hub.docker.com/r/monstrenyatko/openvpn-client/)
+* Docker Registry @[monstrenyatko/openvpn-client](https://hub.docker.com/r/monstrenyatko/openvpn-client/)
 * GitHub @[monstrenyatko/docker-openvpn-client](https://github.com/monstrenyatko/docker-openvpn-client)
 
 Quick Start

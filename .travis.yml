@@ -1,0 +1,42 @@
+sudo: required
+services:
+  - docker
+addons:
+  apt:
+    packages:
+      - docker-ce
+before_install:
+  # enable experimental features
+  - echo '{"experimental":"enabled"}' | sudo tee /etc/docker/daemon.json
+  - mkdir -p $HOME/.docker
+  - echo '{"experimental":"enabled"}' | sudo tee $HOME/.docker/config.json
+  # restart docker
+  - sudo service docker restart
+install:
+  # prepare builder
+  - docker --version
+  - docker buildx create --name xbuilder --use
+language: bash
+env:
+  global:
+    - COMMIT=${TRAVIS_COMMIT::8}
+    - REPO=monstrenyatko/openvpn-client
+script:
+  # build image
+  - ./build.sh "$REPO:$COMMIT"
+  # get release name
+  - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+  # tag and push
+  - >
+    if [ "$TRAVIS_BRANCH" == "master" ] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
+      # login
+      echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+      # push
+      ./build.sh "$REPO:$COMMIT" "--push"
+      ./build.sh "$REPO:$TRAVIS_BUILD_NUMBER" "--push"
+      ./build.sh "$REPO:$TAG" "--push"
+    fi
+notifications:
+  email:
+    on_success: change
+    on_failure: always
