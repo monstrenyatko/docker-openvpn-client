@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  openvpn-client:
+    image: ${DOCKER_REGISTRY}monstrenyatko/openvpn-client
+    container_name: openvpn-client
+    environment:
+      - NET_LOCAL
+    restart: unless-stopped
+    cap_add:
+      - NET_ADMIN
+    volumes:
+      - /dev/net:/dev/net:z
+      - ${OPENVPN_CLIENT_CONFIG}:/config/client.ovpn:ro
+    #ports:
+    # some service web interface
+    #  - 8080:8080
