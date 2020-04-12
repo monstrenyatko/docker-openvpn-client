@@ -1,5 +1,4 @@
 version: '3'
-
 services:
   openvpn-client:
     image: ${DOCKER_REGISTRY}monstrenyatko/openvpn-client
@@ -9,6 +8,8 @@ services:
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
+    sysctls:
+      - net.ipv4.ip_forward=1
     volumes:
       - /dev/net:/dev/net:z
       - ${OPENVPN_CLIENT_CONFIG}:/config/client.ovpn:ro

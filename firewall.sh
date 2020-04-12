@@ -6,10 +6,21 @@ set -x
 # Exit on error
 set -e
 
-docker_network="$(ip -o addr show dev eth0 | awk '$3 == "inet" {print $4}')"
-if [ -z "$docker_network" ]; then
-	>&2 echo "No inet network"
-	exit
+docker_networks=$(ip link | awk -F': ' '$0 !~ "lo|wg|tun|tap|^[^0-9]"{print $2;getline}' | cut -d@ -f1 | (
+  while read interface
+  do
+    network="$(ip -o addr show dev $interface | awk '$3 == "inet" {print $4}')"
+    if [ -z "$result" ]; then
+      result=$network
+    else
+      result=$result,$network
+    fi
+  done
+  echo $result
+))
+if [ -z "$docker_networks" ]; then
+  >&2 echo "No inet network"
+  exit
 fi
 
 iptables -F
@@ -20,11 +31,11 @@ iptables -P OUTPUT DROP
 
 iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -i lo -j ACCEPT
-iptables -A INPUT -s ${docker_network} -j ACCEPT
+iptables -A INPUT -s ${docker_networks} -j ACCEPT
 
 iptables -A OUTPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A OUTPUT -o lo -j ACCEPT
-iptables -A OUTPUT -d ${docker_network} -j ACCEPT
+iptables -A OUTPUT -d ${docker_networks} -j ACCEPT
 iptables -A OUTPUT -o tap+ -j ACCEPT
 iptables -A OUTPUT -o tun+ -j ACCEPT
 iptables -A OUTPUT -p udp -m udp --dport 53 -j ACCEPT
@@ -33,8 +44,9 @@ iptables -A OUTPUT -p udp -m owner --gid-owner openvpn -j ACCEPT
 
 iptables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A FORWARD -i lo -j ACCEPT
-iptables -A FORWARD -d ${docker_network} -j ACCEPT
-iptables -A FORWARD -s ${docker_network} -j ACCEPT
+iptables -A FORWARD -d ${docker_networks} -j ACCEPT
+iptables -A FORWARD -s ${docker_networks} -j ACCEPT
+
 iptables -t nat -A POSTROUTING -o tap+ -j MASQUERADE
 iptables -t nat -A POSTROUTING -o tun+ -j MASQUERADE
 
