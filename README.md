@@ -1,7 +1,7 @@
 OpenVPN client Docker image
 ===========================
 
-[![Build Status](https://travis-ci.org/monstrenyatko/docker-openvpn-client.svg?branch=master)](https://travis-ci.org/monstrenyatko/docker-openvpn-client)
+[![](https://github.com/monstrenyatko/docker-openvpn-client/workflows/ci/badge.svg?branch=master)](https://github.com/monstrenyatko/docker-openvpn-client/actions?query=workflow%3Aci)
 
 About
 =====
