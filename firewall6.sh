@@ -39,8 +39,8 @@ ip6tables -A OUTPUT -d ${docker_networks} -j ACCEPT
 ip6tables -A OUTPUT -o tap+ -j ACCEPT
 ip6tables -A OUTPUT -o tun+ -j ACCEPT
 ip6tables -A OUTPUT -p udp -m udp --dport 53 -j ACCEPT
-ip6tables -A OUTPUT -p tcp -m owner --gid-owner openvpn -j ACCEPT
-ip6tables -A OUTPUT -p udp -m owner --gid-owner openvpn -j ACCEPT
+ip6tables -A OUTPUT -p tcp -m owner --gid-owner $APP_GROUPNAME -j ACCEPT
+ip6tables -A OUTPUT -p udp -m owner --gid-owner $APP_GROUPNAME -j ACCEPT
 
 ip6tables -A FORWARD -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 ip6tables -A FORWARD -i lo -j ACCEPT
